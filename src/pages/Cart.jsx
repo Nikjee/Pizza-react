@@ -16,6 +16,7 @@ function Cart() {
   const { totalPrice, totalCount, items } = useSelector(({ cart }) => cart)
 
   const addedPizzas = Object.keys(items).map((key) => {
+    console.log(items)
     return items[key].items[0]
   })
 

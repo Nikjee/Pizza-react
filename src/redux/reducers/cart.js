@@ -1,5 +1,5 @@
 const initialState = {
-  items: {},
+  PizzaItems: {},
   totalPrice: 0,
   totalCount: 0,
 }
@@ -23,24 +23,69 @@ const getTotalSum = (obj, path) => {
 const cart = (state = initialState, action) => {
   switch (action.type) {
     case 'ADD_PIZZA_CART': {
-      const currentPizzaItems = !state.items[action.payload.id]
-        ? [action.payload]
-        : [...state.items[action.payload.id].items, action.payload]
+      let currentP, newItems
+      const totalCount = 0
+      const totalPrice = 0
 
-      const newItems = {
-        ...state.items,
-        [action.payload.id]: {
-          items: currentPizzaItems,
-          totalPrice: getTotalPrice(currentPizzaItems),
-        },
+      if (!state.PizzaItems[action.payload.id]) {
+        currentP = [action.payload]
+        newItems = {
+          ...state.PizzaItems,
+          [action.payload.id]: {
+            items: currentP,
+          },
+        }
+        console.log(newItems, ' New pizza')
+      } else {
+        let pizzaArr = [...state.PizzaItems[action.payload.id].items]
+
+        const i = pizzaArr.findIndex(
+          (pizza) =>
+            pizza.type === action.payload.type &&
+            pizza.size === action.payload.size
+        )
+        if (i > -1) {
+          state.PizzaItems[action.payload.id].items[i].count += 1
+          return {
+            ...state,
+            totalCount,
+            totalPrice,
+          }
+        } else {
+          currentP = [
+            ...state.PizzaItems[action.payload.id].items,
+            action.payload,
+          ]
+          newItems = {
+            ...state.PizzaItems,
+            [action.payload.id]: {
+              items: currentP,
+            },
+          }
+          console.log('Pizza with another type ', newItems)
+        }
+        if (!newItems) {
+          return {
+            ...state,
+            totalCount,
+            totalPrice,
+          }
+        }
       }
+      // const newItems = {
+      //   ...state.items,
+      //   [action.payload.id]: {
+      //     items: currentPizzaItems,
+      //     totalPrice: getTotalPrice(currentPizzaItems),
+      //   },
+      // }
 
-      const totalCount = getTotalSum(newItems, 'items.length')
-      const totalPrice = getTotalSum(newItems, 'totalPrice')
+      // const totalCount = getTotalSum(newItems, 'items.length')
+      // const totalPrice = getTotalSum(newItems, 'totalPrice')
 
       return {
         ...state,
-        items: newItems,
+        PizzaItems: newItems,
         totalCount,
         totalPrice,
       }
