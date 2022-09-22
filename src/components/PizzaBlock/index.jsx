@@ -36,6 +36,7 @@ function PizzaBlock({
       size: availableSizes[activeSize],
       type: availableTypes[activeType],
       count: 1,
+      totalPrice:price,
     }
     onClickAddPizza(obj)
   }
