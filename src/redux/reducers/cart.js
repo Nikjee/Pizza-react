@@ -4,7 +4,16 @@ const initialState = {
   totalCount: 0,
 }
 
-const getTotalPrice = (arr) => arr.reduce((sum, obj) => obj.price + sum, 0)
+const getTotalPizzaPrice = (arr) =>
+  arr.reduce((sum, obj) => obj.price * obj.count + sum, 0)
+
+const getTotalPizzaCount = (arr) => arr.reduce((sum, obj) => obj.count + sum, 0)
+
+const getTotalCount = (pizzas) =>
+  Object.keys(pizzas).reduce((sum, idx) => pizzas[idx].totalCount + sum, 0)
+
+const getTotalPrice = (pizzas) =>
+  Object.keys(pizzas).reduce((sum, idx) => pizzas[idx].totalPrice + sum, 0)
 
 const _get = (obj, path) => {
   const [firstKey, ...keys] = path.split('.')
@@ -24,8 +33,8 @@ const cart = (state = initialState, action) => {
   switch (action.type) {
     case 'ADD_PIZZA_CART': {
       let currentP, newItems
-      const totalCount = 0
-      const totalPrice = 0
+      let totalCount = 0
+      let totalPrice = 0
 
       if (!state.PizzaItems[action.payload.id]) {
         currentP = [action.payload]
@@ -33,9 +42,10 @@ const cart = (state = initialState, action) => {
           ...state.PizzaItems,
           [action.payload.id]: {
             items: currentP,
+            totalPrice: getTotalPizzaPrice(currentP),
+            totalCount: getTotalPizzaCount(currentP),
           },
         }
-        console.log(newItems, ' New pizza')
       } else {
         let pizzaArr = [...state.PizzaItems[action.payload.id].items]
 
@@ -46,10 +56,19 @@ const cart = (state = initialState, action) => {
         )
         if (i > -1) {
           state.PizzaItems[action.payload.id].items[i].count += 1
+          state.PizzaItems[action.payload.id].items[i].totalPrice =
+            state.PizzaItems[action.payload.id].items[i].price *
+            state.PizzaItems[action.payload.id].items[i].count
+          state.PizzaItems[action.payload.id].totalPrice = getTotalPizzaPrice(
+            state.PizzaItems[action.payload.id].items
+          )
+          state.PizzaItems[action.payload.id].totalCount = getTotalPizzaCount(
+            state.PizzaItems[action.payload.id].items
+          )
           return {
             ...state,
-            totalCount,
-            totalPrice,
+            totalCount: getTotalCount(state.PizzaItems),
+            totalPrice: getTotalPrice(state.PizzaItems),
           }
         } else {
           currentP = [
@@ -60,9 +79,10 @@ const cart = (state = initialState, action) => {
             ...state.PizzaItems,
             [action.payload.id]: {
               items: currentP,
+              totalPrice: getTotalPizzaPrice(currentP),
+              totalCount: getTotalPizzaCount(currentP),
             },
           }
-          console.log('Pizza with another type ', newItems)
         }
         if (!newItems) {
           return {
@@ -86,8 +106,8 @@ const cart = (state = initialState, action) => {
       return {
         ...state,
         PizzaItems: newItems,
-        totalCount,
-        totalPrice,
+        totalCount: getTotalCount(newItems),
+        totalPrice: getTotalPrice(newItems),
       }
     }
 
@@ -115,7 +135,7 @@ const cart = (state = initialState, action) => {
         ...state.items,
         [action.payload]: {
           items: newObjItems,
-          totalPrice: getTotalPrice(newObjItems),
+          totalPrice: getTotalPizzaPrice(newObjItems),
         },
       }
 
@@ -140,7 +160,7 @@ const cart = (state = initialState, action) => {
         ...state.items,
         [action.payload]: {
           items: newObjItems,
-          totalPrice: getTotalPrice(newObjItems),
+          totalPrice: getTotalPizzaPrice(newObjItems),
         },
       }
 
