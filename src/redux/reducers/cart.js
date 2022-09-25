@@ -15,27 +15,13 @@ const getTotalCount = (pizzas) =>
 const getTotalPrice = (pizzas) =>
   Object.keys(pizzas).reduce((sum, idx) => pizzas[idx].totalPrice + sum, 0)
 
-const _get = (obj, path) => {
-  const [firstKey, ...keys] = path.split('.')
-  return keys.reduce((val, key) => {
-    return val[key]
-  }, obj[firstKey])
-}
-
-const getTotalSum = (obj, path) => {
-  return Object.values(obj).reduce((sum, obj) => {
-    const value = _get(obj, path)
-    return sum + value
-  }, 0)
-}
-
 const cart = (state = initialState, action) => {
   switch (action.type) {
     case 'ADD_PIZZA_CART': {
       let currentP, newItems
       let totalCount = 0
       let totalPrice = 0
-
+      // If there is no such pizza then just add it
       if (!state.PizzaItems[action.payload.id]) {
         currentP = [action.payload]
         newItems = {
@@ -46,31 +32,38 @@ const cart = (state = initialState, action) => {
             totalCount: getTotalPizzaCount(currentP),
           },
         }
+        //If pizza already exists
       } else {
         let pizzaArr = [...state.PizzaItems[action.payload.id].items]
-
+        //Search for its index
         const i = pizzaArr.findIndex(
           (pizza) =>
             pizza.type === action.payload.type &&
             pizza.size === action.payload.size
         )
+        //if found
         if (i > -1) {
+          //Increase count of pizza = added another pizza
           state.PizzaItems[action.payload.id].items[i].count += 1
+          //Count the total price of this particular pizza
           state.PizzaItems[action.payload.id].items[i].totalPrice =
             state.PizzaItems[action.payload.id].items[i].price *
             state.PizzaItems[action.payload.id].items[i].count
+          //Count total price and how many of them of all pizzas same type
           state.PizzaItems[action.payload.id].totalPrice = getTotalPizzaPrice(
             state.PizzaItems[action.payload.id].items
           )
           state.PizzaItems[action.payload.id].totalCount = getTotalPizzaCount(
             state.PizzaItems[action.payload.id].items
           )
+          //Return state and calculate the total price of the cart and its amount
           return {
             ...state,
             totalCount: getTotalCount(state.PizzaItems),
             totalPrice: getTotalPrice(state.PizzaItems),
           }
         } else {
+          //If pizza exists but its a new type or size then add it
           currentP = [
             ...state.PizzaItems[action.payload.id].items,
             action.payload,
@@ -84,24 +77,14 @@ const cart = (state = initialState, action) => {
             },
           }
         }
-        if (!newItems) {
-          return {
-            ...state,
-            totalCount,
-            totalPrice,
-          }
-        }
+        // if (!newItems) {
+        //   return {
+        //     ...state,
+        //     totalCount,
+        //     totalPrice,
+        //   }
+        // }
       }
-      // const newItems = {
-      //   ...state.items,
-      //   [action.payload.id]: {
-      //     items: currentPizzaItems,
-      //     totalPrice: getTotalPrice(currentPizzaItems),
-      //   },
-      // }
-
-      // const totalCount = getTotalSum(newItems, 'items.length')
-      // const totalPrice = getTotalSum(newItems, 'totalPrice')
 
       return {
         ...state,
@@ -113,70 +96,86 @@ const cart = (state = initialState, action) => {
 
     case 'REMOVE_CART_ITEM': {
       const newItems = {
-        ...state.items,
+        ...state.PizzaItems,
       }
-      const currentTotalPrice = newItems[action.payload].totalPrice
-      const currentTotalCount = newItems[action.payload].items.length
-      delete newItems[action.payload]
+      let pizzaArr = [...state.PizzaItems[action.payload.id].items]
+
+      const i = pizzaArr.findIndex(
+        (pizza) =>
+          pizza.type === action.payload.type &&
+          pizza.size === action.payload.size
+      )
+      const currentTotalPrice = newItems[action.payload.id].items[i].totalPrice
+      const currentTotalCount = newItems[action.payload.id].items[i].count
+
+      newItems[action.payload.id].items.splice(i, 1)
       return {
         ...state,
-        items: newItems,
+        PizzaItems: newItems,
         totalPrice: state.totalPrice - currentTotalPrice,
         totalCount: state.totalCount - currentTotalCount,
       }
     }
 
     case 'PLUS_CART_ITEM': {
-      const newObjItems = [
-        ...state.items[action.payload].items,
-        state.items[action.payload].items[0],
-      ]
-      const newItems = {
-        ...state.items,
-        [action.payload]: {
-          items: newObjItems,
-          totalPrice: getTotalPizzaPrice(newObjItems),
-        },
-      }
+      let pizzaArr = [...state.PizzaItems[action.payload.id].items]
 
-      const totalCount = getTotalSum(newItems, 'items.length')
-      const totalPrice = getTotalSum(newItems, 'totalPrice')
+      const i = pizzaArr.findIndex(
+        (pizza) =>
+          pizza.type === action.payload.type &&
+          pizza.size === action.payload.size
+      )
 
+      state.PizzaItems[action.payload.id].items[i].count += 1
+      state.PizzaItems[action.payload.id].items[i].totalPrice =
+        state.PizzaItems[action.payload.id].items[i].price *
+        state.PizzaItems[action.payload.id].items[i].count
+      state.PizzaItems[action.payload.id].totalPrice = getTotalPizzaPrice(
+        state.PizzaItems[action.payload.id].items
+      )
+      state.PizzaItems[action.payload.id].totalCount = getTotalPizzaCount(
+        state.PizzaItems[action.payload.id].items
+      )
       return {
         ...state,
-        items: newItems,
-        totalCount,
-        totalPrice,
+        totalCount: getTotalCount(state.PizzaItems),
+        totalPrice: getTotalPrice(state.PizzaItems),
       }
     }
 
     case 'MINUS_CART_ITEM': {
-      const oldItems = state.items[action.payload].items
-      const newObjItems =
-        oldItems.length > 1
-          ? state.items[action.payload].items.slice(1)
-          : oldItems
-      const newItems = {
-        ...state.items,
-        [action.payload]: {
-          items: newObjItems,
-          totalPrice: getTotalPizzaPrice(newObjItems),
-        },
+      let pizzaArr = [...state.PizzaItems[action.payload.id].items]
+
+      const i = pizzaArr.findIndex(
+        (pizza) =>
+          pizza.type === action.payload.type &&
+          pizza.size === action.payload.size
+      )
+
+      if (state.PizzaItems[action.payload.id].items[i].count > 1) {
+        state.PizzaItems[action.payload.id].items[i].count -= 1
+        state.PizzaItems[action.payload.id].items[i].totalPrice =
+          state.PizzaItems[action.payload.id].items[i].price *
+          state.PizzaItems[action.payload.id].items[i].count
+        state.PizzaItems[action.payload.id].totalPrice = getTotalPizzaPrice(
+          state.PizzaItems[action.payload.id].items
+        )
+        state.PizzaItems[action.payload.id].totalCount = getTotalPizzaCount(
+          state.PizzaItems[action.payload.id].items
+        )
+        return {
+          ...state,
+          totalCount: getTotalCount(state.PizzaItems),
+          totalPrice: getTotalPrice(state.PizzaItems),
+        }
       }
-
-      const totalCount = getTotalSum(newItems, 'items.length')
-      const totalPrice = getTotalSum(newItems, 'totalPrice')
-
       return {
         ...state,
-        items: newItems,
-        totalCount,
-        totalPrice,
       }
     }
 
     case 'CLEAR_CART':
-      return { totalPrice: 0, totalCount: 0, items: {} }
+      return { totalPrice: 0, totalCount: 0, PizzaItems: {} }
 
     default:
       return state
