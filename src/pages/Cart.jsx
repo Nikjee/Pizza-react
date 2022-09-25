@@ -25,18 +25,18 @@ console.log(addedPizzas);
     }
   }
 
-  const onRemoveItem = (id) => {
+  const onRemoveItem = (obj) => {
     if (window.confirm('Вы действительно хотите удалить?')) {
-      dispatch(removeCartItem(id))
+      dispatch(removeCartItem(obj))
     }
   }
 
-  const onPlusItem = (id) => {
-    dispatch(plusCartItem(id))
+  const onPlusItem = (obj) => {
+    dispatch(plusCartItem(obj))
   }
 
-  const onMinusItem = (id) => {
-    dispatch(minusCartItem(id))
+  const onMinusItem = (obj) => {
+    dispatch(minusCartItem(obj))
   }
 
   const onClickOrder = () => {
