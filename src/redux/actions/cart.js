@@ -7,17 +7,17 @@ export const clearCart = () => ({
   type: 'CLEAR_CART',
 })
 
-export const removeCartItem = (id) => ({
+export const removeCartItem = (pizzaObj) => ({
   type: 'REMOVE_CART_ITEM',
-  payload: id,
+  payload: pizzaObj,
 })
 
-export const plusCartItem = (id) => ({
+export const plusCartItem = (pizzaObj) => ({
   type: 'PLUS_CART_ITEM',
-  payload: id,
+  payload: pizzaObj,
 })
 
-export const minusCartItem = (id) => ({
+export const minusCartItem = (pizzaObj) => ({
   type: 'MINUS_CART_ITEM',
-  payload: id,
+  payload: pizzaObj,
 })
