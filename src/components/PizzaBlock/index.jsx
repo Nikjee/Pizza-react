@@ -39,6 +39,7 @@ function PizzaBlock({
       totalPrice:price,
     }
     onClickAddPizza(obj)
+
   }
 
   return (

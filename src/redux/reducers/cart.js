@@ -19,8 +19,7 @@ const cart = (state = initialState, action) => {
   switch (action.type) {
     case 'ADD_PIZZA_CART': {
       let currentP, newItems
-      let totalCount = 0
-      let totalPrice = 0
+
       // If there is no such pizza then just add it
       if (!state.PizzaItems[action.payload.id]) {
         currentP = [action.payload]
@@ -43,22 +42,30 @@ const cart = (state = initialState, action) => {
         )
         //if found
         if (i > -1) {
+          newItems = {
+            ...state.PizzaItems,
+          }
           //Increase count of pizza = added another pizza
-          state.PizzaItems[action.payload.id].items[i].count += 1
+          newItems[action.payload.id].items[i].count += 1
+
           //Count the total price of this particular pizza
-          state.PizzaItems[action.payload.id].items[i].totalPrice =
-            state.PizzaItems[action.payload.id].items[i].price *
-            state.PizzaItems[action.payload.id].items[i].count
+          newItems[action.payload.id].items[i].totalPrice =
+            newItems[action.payload.id].items[i].price *
+            newItems[action.payload.id].items[i].count
+
           //Count total price and how many of them of all pizzas same type
-          state.PizzaItems[action.payload.id].totalPrice = getTotalPizzaPrice(
-            state.PizzaItems[action.payload.id].items
+          newItems[action.payload.id].totalPrice = getTotalPizzaPrice(
+            newItems[action.payload.id].items
           )
-          state.PizzaItems[action.payload.id].totalCount = getTotalPizzaCount(
-            state.PizzaItems[action.payload.id].items
+
+          newItems[action.payload.id].totalCount = getTotalPizzaCount(
+            newItems[action.payload.id].items
           )
+
           //Return state and calculate the total price of the cart and its amount
           return {
             ...state,
+            PizzaItems: newItems,
             totalCount: getTotalCount(state.PizzaItems),
             totalPrice: getTotalPrice(state.PizzaItems),
           }

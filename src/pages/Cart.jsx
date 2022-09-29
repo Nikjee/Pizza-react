@@ -18,7 +18,7 @@ function Cart() {
   const addedPizzas = Object.keys(PizzaItems).map((key) => {
     return PizzaItems[key].items
   })
-console.log(addedPizzas);
+  
   const onClearCart = () => {
     if (window.confirm('Вы действительно хотите очистить корзину?')) {
       dispatch(clearCart())
