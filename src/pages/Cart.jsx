@@ -13,34 +13,34 @@ import {
 
 function Cart() {
   const dispatch = useDispatch()
-  const { totalPrice, totalCount, items } = useSelector(({ cart }) => cart)
+  const { totalPrice, totalCount, PizzaItems } = useSelector(({ cart }) => cart)
 
-  const addedPizzas = Object.keys(items).map((key) => {
-    return items[key].items[0]
+  const addedPizzas = Object.keys(PizzaItems).map((key) => {
+    return PizzaItems[key].items
   })
-
+console.log(addedPizzas);
   const onClearCart = () => {
     if (window.confirm('Вы действительно хотите очистить корзину?')) {
       dispatch(clearCart())
     }
   }
 
-  const onRemoveItem = (id) => {
+  const onRemoveItem = (obj) => {
     if (window.confirm('Вы действительно хотите удалить?')) {
-      dispatch(removeCartItem(id))
+      dispatch(removeCartItem(obj))
     }
   }
 
-  const onPlusItem = (id) => {
-    dispatch(plusCartItem(id))
+  const onPlusItem = (obj) => {
+    dispatch(plusCartItem(obj))
   }
 
-  const onMinusItem = (id) => {
-    dispatch(minusCartItem(id))
+  const onMinusItem = (obj) => {
+    dispatch(minusCartItem(obj))
   }
 
   const onClickOrder = () => {
-    console.log('ВАШ ЗАКАЗ', items)
+    console.log('ВАШ ЗАКАЗ', PizzaItems)
   }
 
   return (
@@ -122,15 +122,15 @@ function Cart() {
             </div>
           </div>
           <div className='content__items'>
-            {addedPizzas.map((obj) => (
+            {addedPizzas.flat().map((obj,idx) => (
               <CartItem
-                key={obj.id}
+                key={idx}
                 id={obj.id}
                 name={obj.name}
                 type={obj.type}
                 size={obj.size}
-                totalPrice={items[obj.id].totalPrice}
-                totalCount={items[obj.id].items.length}
+                totalPrice={obj.totalPrice}
+                totalCount={obj.count}
                 onRemove={onRemoveItem}
                 onMinus={onMinusItem}
                 onPlus={onPlusItem}

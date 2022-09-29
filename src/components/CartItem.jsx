@@ -13,15 +13,30 @@ const CartItem = ({
   onPlus,
 }) => {
   const handleRemoveClick = () => {
-    onRemove(id)
+    const obj = {
+      id,
+      type,
+      size
+    }
+    onRemove(obj)
   }
 
   const handlePlusItem = () => {
-    onPlus(id)
+    const obj = {
+      id,
+      type,
+      size
+    }
+    onPlus(obj)
   }
 
   const handleMinusItem = () => {
-    onMinus(id)
+    const obj = {
+      id,
+      type,
+      size
+    }
+    onMinus(obj)
   }
 
   return (
